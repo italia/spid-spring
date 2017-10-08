@@ -13,4 +13,4 @@ Inoltre è possibile utilizzare la classe @RestController (it.italia.developers.
 # Specifiche e test dei servizi REST
 I servizi REST sono documentati per mezzo di Swagger, accedendo all'indirizzo http://localhost:8080/swagger-ui.html . Lo strumento swagger consente inoltre di inserire i paramteri di input e testare gli endpoint per mezzo del pulsante "Try it out!".
 
-![Swagger](https://github.com/Gianluke/spid-spring/blob/master/spid-spring-rest/SPID-SPRING-REST.png?raw=true)
+![Swagger](https://github.com/lucastle/spid-spring/blob/master/spid-spring-rest/SPID-SPRING-REST.png?raw=true)
