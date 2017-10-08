@@ -10,3 +10,6 @@ L'applicazione Spring Boot espone tre servizi REST per un ipotetico client che c
 
 I dettagli dei due moduli maven sono riportati nei seguenti file README.md: [spid-spring-integration](https://github.com/lucastle/spid-spring/blob/master/spid-spring-integration/README.md) e [spid-spring-rest](https://github.com/lucastle/spid-spring/blob/master/spid-spring-rest/README.md)
 
+## TODO List
+- Completare il test della chiamata per la generazione della Authn Request.
+- Completare la chiamata per l'estrazione dei dati dell'utente dalla response dell'Identity Provider.
