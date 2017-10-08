@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: it.italia.developers.spid.integration.util.SPIDIntegrationUtilTest
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.48 sec - in it.italia.developers.spid.integration.util.SPIDIntegrationUtilTest
