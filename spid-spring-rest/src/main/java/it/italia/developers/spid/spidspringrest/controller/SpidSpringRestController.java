@@ -46,7 +46,7 @@ public class SpidSpringRestController {
 		return retVal;
 	}
 
-	@ApiOperation(value = "Inserimento della richiesta di autorizzazione", notes = "Servizio REST per ottenere la richiesta di autorizzazione", response = AuthRequest.class)
+	@ApiOperation(value = "Generazione della richiesta di autorizzazione", notes = "Servizio REST per generare la richiesta di autorizzazione", response = AuthRequest.class)
 	@RequestMapping(value = "auth-spid", method = RequestMethod.GET)
 	public AuthRequest authRequest(@RequestParam(name = "entityId", required = true) @ApiParam(value = "Entity Id dell'Idp", required = true) final String entityId)
 			throws IntegrationServiceException {
@@ -55,7 +55,7 @@ public class SpidSpringRestController {
 		return retVal;
 	}
 
-	@ApiOperation(value = "Iserimento della richiesta di autorizzazione", notes = "Servizio rest per decodificare i dati dell'utente autenticato", response = ResponseDecoded.class)
+	@ApiOperation(value = "Decodifica della risposta di autorizzazione", notes = "Servizio rest per decodificare i dati dell'utente autenticato", response = ResponseDecoded.class)
 	@RequestMapping(value = "send-response", method = RequestMethod.POST, consumes = { MediaType.TEXT_HTML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	public ResponseDecoded decodeResponse(@ApiParam(value = "Valore cifrato della Response di Spid", required = true) @RequestBody final String responseEncripted) {
 		System.out.println(responseEncripted);
