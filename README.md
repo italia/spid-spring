@@ -8,5 +8,5 @@ Il codice sorgente è suddiviso nei due seguenti moduli maven.
 
 L'applicazione Spring Boot espone tre servizi REST per un ipotetico client che consentono di conoscere la lista degli Identity Provider ufficiali, di produrre una request da inviare ad uno specifico Identity Provider e infine di recuperare il contenuto dell response finale inviata dall'Identity Provider.
 
-I dettagli dei due moduli maven sono riportati nei seguenti file README.md: [spid-spring-integration](https://github.com/Gianluke/spid-spring/blob/master/spid-spring-integration/README.md) e [spid-spring-rest](https://github.com/Gianluke/spid-spring/blob/master/spid-spring-rest/README.md)
+I dettagli dei due moduli maven sono riportati nei seguenti file README.md: [spid-spring-integration](https://github.com/lucastle/spid-spring/blob/master/spid-spring-integration/README.md) e [spid-spring-rest](https://github.com/lucastle/spid-spring/blob/master/spid-spring-rest/README.md)
 
