@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/DavidePastore/spid-spring.svg?branch=add-travis-build)](https://travis-ci.org/italia/spid-spring)
+[![Build Status](https://travis-ci.org/italia/spid-spring.svg?branch=master)](https://travis-ci.org/italia/spid-spring)
 
 # spid-spring
 
