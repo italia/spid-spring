@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/DavidePastore/spid-spring.svg?branch=add-travis-build)](https://travis-ci.org/italia/spid-spring)
+
 # spid-spring
 
 Questo progetto rappresenta la risposta alla issue ["Sviluppo estensione Java Spring per SPID #1"](https://github.com/italia/spid-spring/issues/1) del team hack.developers 2017 di Lecce.
