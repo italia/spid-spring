@@ -1,3 +1,6 @@
+# add dist trusty for jdk8
+dist: trusty
+
 language: java
 
 jdk:
