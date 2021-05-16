@@ -220,7 +220,7 @@ public class AuthenticationInfoExtractor {
 		// Create RequestedAuthnContext
 		RequestedAuthnContextBuilder requestedAuthnContextBuilder = new RequestedAuthnContextBuilder();
 		RequestedAuthnContext requestedAuthnContext = requestedAuthnContextBuilder.buildObject();
-		requestedAuthnContext.setComparison(AuthnContextComparisonTypeEnumeration.EXACT);
+		requestedAuthnContext.setComparison(AuthnContextComparisonTypeEnumeration.MINIMUM);
 		requestedAuthnContext.getAuthnContextClassRefs().add(authnContextClassRef);
 
 		return requestedAuthnContext;
