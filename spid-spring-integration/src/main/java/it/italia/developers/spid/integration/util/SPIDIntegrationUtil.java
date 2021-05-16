@@ -34,6 +34,8 @@ import org.opensaml.xml.security.x509.BasicX509Credential;
 import org.opensaml.xml.signature.KeyInfo;
 import org.opensaml.xml.signature.Signature;
 import org.opensaml.xml.signature.SignatureConstants;
+import org.opensaml.xml.signature.SignatureException;
+import org.opensaml.xml.signature.Signer;
 import org.opensaml.xml.util.Base64;
 import org.opensaml.xml.util.XMLHelper;
 import org.slf4j.Logger;
@@ -81,9 +83,12 @@ public class SPIDIntegrationUtil {
 	 * @throws IOException
 	 * @throws ConfigurationException
 	 */
-	public String encodeAndPrintAuthnRequest(AuthnRequest authnRequest) throws IntegrationServiceException {
+	public String encodeAuthnRequest(AuthnRequest authnRequest, boolean compress) throws IntegrationServiceException {
 
 		String requestMessage = printAuthnRequest(authnRequest);
+		if(!compress) {
+			return Base64.encodeBytes(requestMessage.getBytes(), Base64.DONT_BREAK_LINES);
+		}
 		Deflater deflater = new Deflater(Deflater.DEFLATED, true);
 		ByteArrayOutputStream byteArrayOutputStream = null;
 		DeflaterOutputStream deflaterOutputStream = null;
@@ -130,6 +135,13 @@ public class SPIDIntegrationUtil {
 			log.error("printAuthnRequest :: " + e.getMessage(), e);
 			throw new IntegrationServiceException(e);
 		}
+		
+		try {
+			Signer.signObject(authnRequest.getSignature());
+		} catch (SignatureException e) {
+			  e.printStackTrace();
+		}
+		
 		// converting to a DOM
 		StringWriter requestWriter = new StringWriter();
 		requestWriter = new StringWriter();
@@ -172,7 +184,7 @@ public class SPIDIntegrationUtil {
 		credential.setEntityCertificate(certificate);
 		credential.setPrivateKey(pk);
 
-		log.info("Private Key" + pk.toString());
+		// log.info("Private Key" + pk.toString());
 
 		return credential;
 	}
@@ -223,7 +235,7 @@ public class SPIDIntegrationUtil {
 		KeyStore ks = getKeyStore();
 		try {
 			X509Certificate certificate = (X509Certificate) ks.getCertificate(certificateAliasName);
-			KeyInfoHelper.addPublicKey(keyInfo, certificate.getPublicKey());
+			// KeyInfoHelper.addPublicKey(keyInfo, certificate.getPublicKey());
 			KeyInfoHelper.addCertificate(keyInfo, certificate);
 		}
 		catch (CertificateEncodingException e) {

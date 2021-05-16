@@ -46,6 +46,7 @@ public class AuthenticationInfoExtractor {
 	private static final String SAML2_PROTOCOL = "urn:oasis:names:tc:SAML:2.0:protocol";
 	private static final String SAML2_POST_BINDING = "urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST";
 	private static final String SAML2_NAME_ID_POLICY = "urn:oasis:names:tc:SAML:2.0:nameid-format:transient";
+	private static final String SAML2_ISSUER = "urn:oasis:names:tc:SAML:2.0:nameid-format:entity";
 	private static final String SAML2_PASSWORD_PROTECTED_TRANSPORT = "https://www.spid.gov.it/SpidL2";
 	private static final String SAML2_ASSERTION = "urn:oasis:names:tc:SAML:2.0:assertion";
 	private static final String SPID_SPRING_INTEGRATION_IDP_PREFIX = "spid.spring.integration.idp.";
@@ -114,8 +115,8 @@ public class AuthenticationInfoExtractor {
 			}
 
 			// Caricamento IDP da entityID
-			AuthnRequest buildAuthenticationRequest = buildAuthenticationRequest(assertionConsumerServiceUrl, assertionConsumerServiceIndex, spEntityDescriptor.getEntityID(), id, destination);
-			String encodedAuthnRequest = spidIntegrationUtil.encodeAndPrintAuthnRequest(buildAuthenticationRequest);
+			AuthnRequest authnRequest = buildAuthenticationRequest(assertionConsumerServiceUrl, assertionConsumerServiceIndex, spEntityDescriptor.getEntityID(), id, destination);
+			String encodedAuthnRequest = spidIntegrationUtil.encodeAuthnRequest(authnRequest, false);
 
 			// TODO caricare da metadati SP
 			authRequest.setDestinationUrl(destination);
@@ -188,10 +189,11 @@ public class AuthenticationInfoExtractor {
 		AuthnRequestBuilder authRequestBuilder = new AuthnRequestBuilder();
 
 		AuthnRequest authRequest = authRequestBuilder.buildObject(SAML2_PROTOCOL, "AuthnRequest", "samlp");
-		authRequest.setIsPassive(Boolean.FALSE);
+		authRequest.setForceAuthn(Boolean.TRUE);
+		// authRequest.setIsPassive(Boolean.FALSE);
 		authRequest.setIssueInstant(issueInstant);
-		authRequest.setProtocolBinding(SAML2_POST_BINDING);
-		authRequest.setAssertionConsumerServiceURL(assertionConsumerServiceUrl);
+		// authRequest.setProtocolBinding(SAML2_POST_BINDING);
+		// authRequest.setAssertionConsumerServiceURL(assertionConsumerServiceUrl);
 		authRequest.setAssertionConsumerServiceIndex(assertionConsumerServiceIndex);
 		authRequest.setIssuer(buildIssuer(issuerId));
 		authRequest.setNameIDPolicy(buildNameIDPolicy());
@@ -233,7 +235,7 @@ public class AuthenticationInfoExtractor {
 		IssuerBuilder issuerBuilder = new IssuerBuilder();
 		Issuer issuer = issuerBuilder.buildObject();
 		issuer.setNameQualifier(issuerId);
-		issuer.setFormat(SAML2_NAME_ID_POLICY);
+		issuer.setFormat(SAML2_ISSUER);
 		issuer.setValue(issuerId);
 		return issuer;
 	}
