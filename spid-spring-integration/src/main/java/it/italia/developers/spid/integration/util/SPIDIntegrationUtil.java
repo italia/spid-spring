@@ -184,8 +184,6 @@ public class SPIDIntegrationUtil {
 		credential.setEntityCertificate(certificate);
 		credential.setPrivateKey(pk);
 
-		// log.info("Private Key" + pk.toString());
-
 		return credential;
 	}
 
@@ -235,7 +233,6 @@ public class SPIDIntegrationUtil {
 		KeyStore ks = getKeyStore();
 		try {
 			X509Certificate certificate = (X509Certificate) ks.getCertificate(certificateAliasName);
-			// KeyInfoHelper.addPublicKey(keyInfo, certificate.getPublicKey());
 			KeyInfoHelper.addCertificate(keyInfo, certificate);
 		}
 		catch (CertificateEncodingException e) {

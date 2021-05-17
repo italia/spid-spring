@@ -190,10 +190,7 @@ public class AuthenticationInfoExtractor {
 
 		AuthnRequest authRequest = authRequestBuilder.buildObject(SAML2_PROTOCOL, "AuthnRequest", "samlp");
 		authRequest.setForceAuthn(Boolean.TRUE);
-		// authRequest.setIsPassive(Boolean.FALSE);
 		authRequest.setIssueInstant(issueInstant);
-		// authRequest.setProtocolBinding(SAML2_POST_BINDING);
-		// authRequest.setAssertionConsumerServiceURL(assertionConsumerServiceUrl);
 		authRequest.setAssertionConsumerServiceIndex(assertionConsumerServiceIndex);
 		authRequest.setIssuer(buildIssuer(issuerId));
 		authRequest.setNameIDPolicy(buildNameIDPolicy());
