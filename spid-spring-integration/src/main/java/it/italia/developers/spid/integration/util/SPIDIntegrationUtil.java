@@ -139,7 +139,8 @@ public class SPIDIntegrationUtil {
 		try {
 			Signer.signObject(authnRequest.getSignature());
 		} catch (SignatureException e) {
-			  e.printStackTrace();
+			log.error("There was an error while signing the request", e);
+			throw new IntegrationServiceException(e);
 		}
 		
 		// converting to a DOM
