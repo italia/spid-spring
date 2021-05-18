@@ -58,7 +58,7 @@ public class SpidSpringRestController {
 	@ApiOperation(value = "Decodifica della risposta di autorizzazione", notes = "Servizio rest per decodificare i dati dell'utente autenticato", response = ResponseDecoded.class)
 	@RequestMapping(value = "send-response", method = RequestMethod.POST, consumes = { MediaType.TEXT_HTML_VALUE, MediaType.APPLICATION_JSON_VALUE })
 	public ResponseDecoded decodeResponse(@ApiParam(value = "Valore cifrato della Response di Spid", required = true) @RequestBody final String responseEncripted) {
-		System.out.println(responseEncripted);
+		log.info(responseEncripted);
 
 		ResponseDecoded retVal = new ResponseDecoded();
 		retVal.setNome("TEST");
