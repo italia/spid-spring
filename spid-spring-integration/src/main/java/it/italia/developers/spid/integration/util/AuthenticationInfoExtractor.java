@@ -187,25 +187,25 @@ public class AuthenticationInfoExtractor {
 		DateTime issueInstant = new DateTime();
 		AuthnRequestBuilder authRequestBuilder = new AuthnRequestBuilder();
 
-		AuthnRequest authRequest = authRequestBuilder.buildObject(SAML2_PROTOCOL, "AuthnRequest", "samlp");
-		authRequest.setIsPassive(Boolean.FALSE);
-		authRequest.setIssueInstant(issueInstant);
-		authRequest.setProtocolBinding(SAML2_POST_BINDING);
-		authRequest.setAssertionConsumerServiceURL(assertionConsumerServiceUrl);
-		authRequest.setAssertionConsumerServiceIndex(assertionConsumerServiceIndex);
-		authRequest.setIssuer(buildIssuer(issuerId));
-		authRequest.setNameIDPolicy(buildNameIDPolicy());
-		authRequest.setRequestedAuthnContext(buildRequestedAuthnContext());
-		authRequest.setID(id);
-		authRequest.setVersion(SAMLVersion.VERSION_20);
+		AuthnRequest authRequestResponse = authRequestBuilder.buildObject(SAML2_PROTOCOL, "AuthnRequest", "samlp");
+		authRequestResponse.setIsPassive(Boolean.FALSE);
+		authRequestResponse.setIssueInstant(issueInstant);
+		authRequestResponse.setProtocolBinding(SAML2_POST_BINDING);
+		authRequestResponse.setAssertionConsumerServiceURL(assertionConsumerServiceUrl);
+		authRequestResponse.setAssertionConsumerServiceIndex(assertionConsumerServiceIndex);
+		authRequestResponse.setIssuer(buildIssuer(issuerId));
+		authRequestResponse.setNameIDPolicy(buildNameIDPolicy());
+		authRequestResponse.setRequestedAuthnContext(buildRequestedAuthnContext());
+		authRequestResponse.setID(id);
+		authRequestResponse.setVersion(SAMLVersion.VERSION_20);
 
-		authRequest.setAttributeConsumingServiceIndex(1);
-		authRequest.setDestination(destination);
+		authRequestResponse.setAttributeConsumingServiceIndex(1);
+		authRequestResponse.setDestination(destination);
 
 		// firma la request
-		authRequest.setSignature(spidIntegrationUtil.getSignature());
+		authRequestResponse.setSignature(spidIntegrationUtil.getSignature());
 
-		return authRequest;
+		return authRequestResponse;
 	}
 
 	private RequestedAuthnContext buildRequestedAuthnContext() {

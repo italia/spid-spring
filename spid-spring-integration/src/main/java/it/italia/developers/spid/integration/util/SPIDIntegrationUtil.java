@@ -132,7 +132,6 @@ public class SPIDIntegrationUtil {
 		}
 		// converting to a DOM
 		StringWriter requestWriter = new StringWriter();
-		requestWriter = new StringWriter();
 		XMLHelper.writeNode(authDOM, requestWriter);
 		String authnRequestString = requestWriter.toString(); // DOM to string
 

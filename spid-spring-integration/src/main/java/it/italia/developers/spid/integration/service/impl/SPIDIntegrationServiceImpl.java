@@ -61,7 +61,7 @@ public class SPIDIntegrationServiceImpl implements SPIDIntegrationService {
 
 	@Override
 	public List<IdpEntry> getAllIdpEntry() throws IntegrationServiceException {
-		List<IdpEntry> idpEntries = new ArrayList<IdpEntry>();
+		List<IdpEntry> idpEntries = new ArrayList<>();
 
 		Properties properties = new Properties();
 		try (InputStream propertiesInputStream = getClass().getResourceAsStream("/idplist.properties")) {
@@ -78,7 +78,7 @@ public class SPIDIntegrationServiceImpl implements SPIDIntegrationService {
 	}
 
 	private List<IdpEntry> propertiesToIdPEntry(final Properties properties) {
-		List<IdpEntry> idpEntries = new ArrayList<IdpEntry>();
+		List<IdpEntry> idpEntries = new ArrayList<>();
 
 		String keysProperty = properties.getProperty(SPID_SPRING_INTEGRATION_IDP_KEYS);
 		String[] keys = keysProperty.split(",");
