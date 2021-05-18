@@ -80,7 +80,7 @@ public class SpidSpringRestController {
 		}
 	}
 
-	private static final List<ExtraInfo> EXTRA_INFO = new ArrayList<ExtraInfo>();
+	private static final List<ExtraInfo> EXTRA_INFO = new ArrayList<>();
 	static {
 		EXTRA_INFO.add(new ExtraInfo("Maggiori informazioni", "https://www.spid.gov.it/"));
 		EXTRA_INFO.add(new ExtraInfo("Non hai SPID?", "https://www.spid.gov.it/richiedi-spid"));

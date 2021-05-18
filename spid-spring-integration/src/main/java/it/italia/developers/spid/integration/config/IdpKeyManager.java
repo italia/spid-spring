@@ -25,7 +25,7 @@ public class IdpKeyManager extends AbstractCredentialResolver implements KeyMana
 	public IdpKeyManager(final String entityId, final String certificateStr) throws MetadataProviderException, CertificateException, UnsupportedEncodingException {
 		super();
 		this.entityId = entityId;
-		availableCredentials = new HashSet<String>();
+		availableCredentials = new HashSet<>();
 		availableCredentials.add(entityId);
 
 		certificate = X509Utils.generateX509Certificate(certificateStr);
