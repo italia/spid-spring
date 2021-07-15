@@ -194,3 +194,16 @@ fabric.properties
 hs_err_pid*
 
 */target
+
+#eclipse files
+.classpath
+.project
+.settings
+
+#idea
+*.iml
+.idea
+
+spid-spring-integration/target/
+spid-spring-rest/target/
+spid-spring-integration/bin/

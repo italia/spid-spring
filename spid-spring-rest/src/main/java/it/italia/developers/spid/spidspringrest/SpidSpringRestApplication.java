@@ -38,11 +38,6 @@ public class SpidSpringRestApplication {
 	@Bean
 	public Docket api() {
 		return new Docket(DocumentationType.SWAGGER_2).select().apis(RequestHandlerSelectors.any()).paths(PathSelectors.any()).build().apiInfo(apiInfo());
-		// .useDefaultResponseMessages(false)
-		// .globalResponseMessage(RequestMethod.GET, errorList())
-		// .globalResponseMessage(RequestMethod.POST, errorList())
-		// .globalResponseMessage(RequestMethod.PUT, errorList())
-		// .globalResponseMessage(RequestMethod.DELETE, errorList());
 	}
 
 	private List<ResponseMessage> errorList() {

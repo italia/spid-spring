@@ -23,7 +23,7 @@ public class SpMetadataGenerator {
 
 	    // Defaults
 	    String alias = configuration.getAlias();
-	    String baseURL = configuration.getBaseUrl();
+	    String baseURL = configuration.getDefaultBaseUrl();
 
 	    generator.setEntityBaseURL(baseURL);
 	    List<String> ssoBindings = new ArrayList<String>();
