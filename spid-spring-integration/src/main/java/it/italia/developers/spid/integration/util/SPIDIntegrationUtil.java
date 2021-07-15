@@ -6,7 +6,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.StringWriter;
 import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
@@ -15,8 +17,7 @@ import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.zip.Deflater;
-import java.util.zip.DeflaterOutputStream;
+import java.util.zip.*;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -49,7 +50,6 @@ import it.italia.developers.spid.integration.exception.IntegrationServiceExcepti
 
 /**
  * @author Gianluca Pindinelli
- *
  */
 @Component
 public class SPIDIntegrationUtil {
@@ -112,9 +112,47 @@ public class SPIDIntegrationUtil {
 			log.error("encodeAndPrintAuthnRequest :: " + e.getMessage(), e);
 			throw new IntegrationServiceException(e);
 		}
-
 		return encodedRequestMessage;
+	}
 
+	/**
+	 *  Decodifica un messaggio codificato
+	 *
+	 * @param encodedRequestMessage
+	 * @return Il messaggio decodificato
+	 * @throws IOException
+	 * @throws DataFormatException
+	 */
+	public String decode(String encodedRequestMessage) throws IOException, DataFormatException {
+
+		encodedRequestMessage = URLDecoder.decode(encodedRequestMessage, "UTF-8"); // encoding string
+
+		return new String(decompress(Base64.decode(encodedRequestMessage)),StandardCharsets.UTF_8);
+	}
+
+	/**
+	 * Decompressione tramite la classd @{@link Inflater}
+	 *
+	 * @param data
+	 * @return array di byte decompresso
+	 * @throws IOException
+	 * @throws DataFormatException
+	 */
+	private byte[] decompress(byte[] data) throws IOException, DataFormatException {
+		Inflater inflater = new Inflater(true);
+		inflater.setInput(data);
+
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length);
+		byte[] buffer = new byte[1024];
+		while (!inflater.finished()) {
+			int count = inflater.inflate(buffer);
+			outputStream.write(buffer, 0, count);
+		}
+		outputStream.close();
+		byte[] output = outputStream.toByteArray();
+
+
+		return output;
 	}
 
 	/**
@@ -148,16 +186,16 @@ public class SPIDIntegrationUtil {
 		XMLHelper.writeNode(authDOM, requestWriter);
 		String authnRequestString = requestWriter.toString(); // DOM to string
 
-		return authnRequestString;
+    return authnRequestString;
 
-	}
+    }
 
 	public Element xmlStringToElement(String xmlData) throws SAXException, IOException, ParserConfigurationException {
 		InputStream xmlByteArrayInputStream = new ByteArrayInputStream(xmlData.getBytes());
 		Element node = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xmlByteArrayInputStream).getDocumentElement();
 
-		return node;
-	}
+        return node;
+    }
 
 	public Credential getCredential() {
 

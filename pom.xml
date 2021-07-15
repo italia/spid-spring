@@ -8,7 +8,7 @@
 	<description>SPID - Spring Integration per hack.developers17</description>
 
 	<properties>
-		<spring.version>4.3.0.RELEASE</spring.version>
+		<spring.version>5.2.15.RELEASE</spring.version>
 	</properties>
 
 	<modules>
