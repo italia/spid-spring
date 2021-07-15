@@ -111,14 +111,14 @@ public class SPIDIntegrationServiceImpl implements SPIDIntegrationService {
 			SAMLMessageContext messageContext = context.createSamlMessageContext(request, response);
 
 			// Process response
-			context.getSamlProcessor().retrieveMessage(messageContext);
+			SAMLContext.getSamlProcessor().retrieveMessage(messageContext);
 
 			messageContext
 					.setLocalEntityEndpoint(SAMLUtil.getEndpoint(messageContext.getLocalEntityRoleMetadata().getEndpoints(),
 							messageContext.getInboundSAMLBinding(), new HttpServletRequestAdapter(request)));
 			messageContext.getPeerEntityMetadata().setEntityID(saml2Config.getIdpEntityId());
 
-			WebSSOProfileConsumer consumer = new WebSSOProfileConsumerImpl(context.getSamlProcessor(),
+			WebSSOProfileConsumer consumer = new WebSSOProfileConsumerImpl(SAMLContext.getSamlProcessor(),
 					context.getMetadataManager());
 			credential = consumer.processAuthenticationResponse(messageContext);
 		}

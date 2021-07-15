@@ -29,10 +29,14 @@ import org.springframework.security.saml.processor.SAMLBinding;
 import org.springframework.security.saml.processor.SAMLProcessor;
 import org.springframework.security.saml.processor.SAMLProcessorImpl;
 
+import lombok.Getter;
+
 public class SAMLContext {
 	private static final Logger logger = LoggerFactory.getLogger(SAMLContext.class);
+	
+	@Getter
 	private static final SAMLProcessor samlProcessor;
-
+	@Getter
 	private MetadataManager metadataManager;
 	private KeyManager idpKeyManager;
 
@@ -86,18 +90,6 @@ public class SAMLContext {
 		context.setCommunicationProfileId(SAMLConstants.SAML2_WEBSSO_PROFILE_URI);
 
 		return context;
-	}
-
-	public SAMLProcessor getSamlProcessor() {
-		return samlProcessor;
-	}
-
-	public MetadataManager getMetadataManager() {
-		return metadataManager;
-	}
-
-	public KeyManager getIdpKeyManager() {
-		return idpKeyManager;
 	}
 
 	private String getDefaultBaseURL(final HttpServletRequest request) {
