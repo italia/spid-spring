@@ -26,7 +26,7 @@ public class SpMetadataGenerator {
 	    String baseURL = configuration.getDefaultBaseUrl();
 
 	    generator.setEntityBaseURL(baseURL);
-	    List<String> ssoBindings = new ArrayList<String>();
+	    List<String> ssoBindings = new ArrayList<>();
 	    ssoBindings.add("post");
 	    generator.setBindingsSSO(ssoBindings);
 

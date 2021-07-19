@@ -41,7 +41,7 @@ public class SpidSpringRestApplication {
 	}
 
 	private List<ResponseMessage> errorList() {
-		List<ResponseMessage> lista = new ArrayList<ResponseMessage>();
+		List<ResponseMessage> lista = new ArrayList<>();
 		lista.add(new ResponseMessageBuilder().code(500).message("500 message").responseModel(new ModelRef("ErrorRestService")).build());
 		lista.add(new ResponseMessageBuilder().code(400).message("Bad Request").responseModel(new ModelRef("ErrorRestService")).build());
 		lista.add(new ResponseMessageBuilder().code(401).message("Non Autorizzato").responseModel(new ModelRef("ErrorRestService")).build());
