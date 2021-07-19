@@ -115,7 +115,7 @@ public class AuthenticationInfoExtractor {
 
 			// Caricamento IDP da entityID
 			AuthnRequest buildAuthenticationRequest = buildAuthenticationRequest(assertionConsumerServiceUrl, assertionConsumerServiceIndex, spEntityDescriptor.getEntityID(), id, destination);
-			String encodedAuthnRequest = spidIntegrationUtil.encodeAndPrintAuthnRequest(buildAuthenticationRequest);
+			String encodedAuthnRequest = spidIntegrationUtil.printAuthnRequest(buildAuthenticationRequest);
 
 			// TODO caricare da metadati SP
 			authRequest.setDestinationUrl(destination);
