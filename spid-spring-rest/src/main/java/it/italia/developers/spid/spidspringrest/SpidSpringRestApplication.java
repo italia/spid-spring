@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
@@ -26,9 +27,11 @@ import springfox.documentation.swagger2.annotations.EnableSwagger2;
 @EnableSwagger2
 @Configuration
 @ComponentScan(basePackages = { "it.italia.developers.spid.integration", "it.italia.developers.spid.spidspringrest" })
-@PropertySources({ @PropertySource("classpath:application.properties"), @PropertySource("classpath:integration.properties"),
+@PropertySources({
+		@PropertySource("classpath:application.properties"),
+		@PropertySource("classpath:integration.properties"),
 		@PropertySource(value = "file:${spid-spring-integration.properties.path}", ignoreResourceNotFound = true) })
-@EnableAutoConfiguration(exclude = { org.springframework.boot.autoconfigure.security.SecurityAutoConfiguration.class })
+@EnableAutoConfiguration(exclude = { SecurityAutoConfiguration.class })
 public class SpidSpringRestApplication {
 
 	public static void main(final String[] args) {
@@ -41,7 +44,7 @@ public class SpidSpringRestApplication {
 	}
 
 	private List<ResponseMessage> errorList() {
-		List<ResponseMessage> lista = new ArrayList<ResponseMessage>();
+		List<ResponseMessage> lista = new ArrayList<>();
 		lista.add(new ResponseMessageBuilder().code(500).message("500 message").responseModel(new ModelRef("ErrorRestService")).build());
 		lista.add(new ResponseMessageBuilder().code(400).message("Bad Request").responseModel(new ModelRef("ErrorRestService")).build());
 		lista.add(new ResponseMessageBuilder().code(401).message("Non Autorizzato").responseModel(new ModelRef("ErrorRestService")).build());
