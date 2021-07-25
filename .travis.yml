@@ -6,6 +6,4 @@ language: java
 jdk:
   - oraclejdk11
 
-#script: mvn test
-env:
-  - CMD: mvn install -Dmaven.javadoc.skip=true -B -V
+script: mvn test
