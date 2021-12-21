@@ -29,5 +29,6 @@ hs_err_pid*
 #idea
 *.iml
 .idea
-/spid-spring-integration/target/
-/spid-spring-rest/target/
+
+#maven
+target/
