@@ -32,3 +32,6 @@ hs_err_pid*
 
 #maven
 target/
+
+# SDKMan! - https://sdkman.io/
+.sdkmanrc
