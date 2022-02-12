@@ -31,7 +31,7 @@ public interface SPIDIntegrationService {
 	 * @return
 	 * @throws IntegrationServiceException
 	 */
-	List<IdpEntry> getAllIdpEntry() throws IntegrationServiceException;
+	List<IdpEntry> idpEntries() throws IntegrationServiceException;
 
 	/**
 	 * Costruisce la risposta decodificata a partire dall'auth response SAML2.
