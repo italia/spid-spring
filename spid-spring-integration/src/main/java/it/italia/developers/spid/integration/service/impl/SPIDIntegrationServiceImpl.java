@@ -1,6 +1,5 @@
 package it.italia.developers.spid.integration.service.impl;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -50,28 +49,23 @@ public class SPIDIntegrationServiceImpl implements SPIDIntegrationService {
 	private String issuerId;
 
 	@Autowired
-	SPIDIntegrationUtil spidIntegrationUtil;
+	private SPIDIntegrationUtil spidIntegrationUtil;
 
 	@Override
 	public AuthRequest buildAuthenticationRequest(final String entityId, final int assertionConsumerServiceIndex) throws IntegrationServiceException {
 		AuthenticationInfoExtractor authenticationInfoExtractor = new AuthenticationInfoExtractor(entityId, spidIntegrationUtil, assertionConsumerServiceIndex);
-		AuthRequest authRequest = authenticationInfoExtractor.getAuthenticationRequest();
-		return authRequest;
+		return authenticationInfoExtractor.getAuthenticationRequest();
 	}
 
 	@Override
-	public List<IdpEntry> getAllIdpEntry() throws IntegrationServiceException {
+	public List<IdpEntry> idpEntries() throws IntegrationServiceException {
 		List<IdpEntry> idpEntries = new ArrayList<>();
 
 		Properties properties = new Properties();
 		try (InputStream propertiesInputStream = getClass().getResourceAsStream("/idplist.properties")) {
 			properties.load(propertiesInputStream);
 			idpEntries = propertiesToIdPEntry(properties);
-		}
-		catch (FileNotFoundException e) {
-			throw new IntegrationServiceException(e);
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 			throw new IntegrationServiceException(e);
 		}
 		return idpEntries;
