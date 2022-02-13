@@ -1,11 +1,10 @@
 package it.italia.developers.spid.integration.service.test;
 
-import it.italia.developers.spid.integration.Application;
-import it.italia.developers.spid.integration.exception.IntegrationServiceException;
-import it.italia.developers.spid.integration.model.AuthRequest;
-import it.italia.developers.spid.integration.model.IdpEntry;
-import it.italia.developers.spid.integration.service.SPIDIntegrationService;
-import it.italia.developers.spid.integration.util.SPIDIntegrationUtil;
+import static org.assertj.core.api.Assertions.assertThat;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+
 import org.assertj.core.api.SoftAssertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,84 +14,75 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.w3c.dom.Element;
+import org.w3c.dom.NamedNodeMap;
 
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.List;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import it.italia.developers.spid.integration.Application;
+import it.italia.developers.spid.integration.exception.IntegrationServiceException;
+import it.italia.developers.spid.integration.model.AuthRequest;
+import it.italia.developers.spid.integration.service.SPIDIntegrationService;
+import it.italia.developers.spid.integration.util.SPIDIntegrationUtil;
 
 /**
  * @author Gianluca Pindinelli
- *
  */
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = { Application.class })
-public class SPIDIntegrationServiceTest {
+@ContextConfiguration(classes = {Application.class})
+class SPIDIntegrationServiceTest {
 
-	private final Logger log = LoggerFactory.getLogger(SPIDIntegrationServiceTest.class.getName());
+    private final Logger log = LoggerFactory.getLogger(SPIDIntegrationServiceTest.class.getName());
 
-	@Autowired
-	private SPIDIntegrationService spidIntegrationService;
+    @Autowired
+    private SPIDIntegrationService spidIntegrationService;
 
-	@Autowired
-	private SPIDIntegrationUtil spidIntegrationUtil;
+    @Autowired
+    private SPIDIntegrationUtil spidIntegrationUtil;
 
-	@Test
-	public void shouldBuildAuthRequestWhenGiveValidRequest() throws IntegrationServiceException {
+    @Test
+    void shouldBuildAuthRequestWhenGiveValidRequest() throws IntegrationServiceException {
 
-			AuthRequest authRequest = spidIntegrationService.buildAuthenticationRequest("idp.spid.gov.it", 0);
-			assertThat(authRequest.getXmlAuthRequest()).isNotNull();
-	}
+        AuthRequest authRequest = spidIntegrationService.buildAuthenticationRequest("idp.spid.gov.it", 0);
+        assertThat(authRequest.getXmlAuthRequest()).isNotNull();
+    }
 
-	@Test
-	public void shouldGetSpecificXMLWhenCallAuthRequest() throws Exception {
-		String expectedIssuer = "https://spid.lecce.it";
+    @Test
+    void shouldGetSpecificXMLWhenCallAuthRequest() throws Exception {
+        String expectedIssuer = "https://spid.lecce.it";
 
+        AuthRequest authRequest = spidIntegrationService.buildAuthenticationRequest("idp.spid.gov.it", 0);
+        String result = authRequest.getXmlAuthRequest();
 
-			AuthRequest authRequest = spidIntegrationService.buildAuthenticationRequest("idp.spid.gov.it", 0);
-			String result = spidIntegrationUtil.decode(authRequest.getXmlAuthRequest());
+        Element resultElement = spidIntegrationUtil.xmlStringToElement(result);
 
-			Element resultElement = spidIntegrationUtil.xmlStringToElement(result);
+        assertThat(resultElement.getElementsByTagName("saml2:Issuer").item(0).getTextContent()).isEqualTo(expectedIssuer);
+    }
 
-			assertThat(resultElement.getElementsByTagName("saml2:Issuer").item(0).getTextContent()).isEqualTo(expectedIssuer);
+    @Test
+    void shouldGetIdWhenCallAuthRequest() throws Exception {
 
+        LocalDate dateToday = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("uuuu-MM-dd");
+        String formattedString = dateToday.format(formatter);
 
-	}
+        String IDPEntityId = "idp.spid.gov.it";
+        int assertionConsumerServiceIndex = 0;
+        AuthRequest authRequest = spidIntegrationService.buildAuthenticationRequest(IDPEntityId, assertionConsumerServiceIndex);
+        String xmlAuthRequest = authRequest.getXmlAuthRequest();
 
-	@Test
-	public void shouldGetIdWhenCallAuthRequest() throws Exception {
+        Element resultElement = spidIntegrationUtil.xmlStringToElement(xmlAuthRequest);
+        NamedNodeMap actualAttributes = resultElement.getAttributes();
+        SoftAssertions.assertSoftly(softly -> {
+            softly.assertThat(actualAttributes.getNamedItem("ID")).isNotNull();
+            softly.assertThat(actualAttributes.getNamedItem("IssueInstant").getTextContent()).contains(formattedString);
+            softly.assertThat(actualAttributes.getNamedItem("Version").getTextContent()).isEqualTo("2.0");
+            softly.assertThat(actualAttributes.getNamedItem("Destination").getTextContent()).contains(IDPEntityId);
+            softly.assertThat(actualAttributes.getNamedItem("AssertionConsumerServiceIndex").getTextContent()).isEqualTo(String.valueOf(assertionConsumerServiceIndex));
+            softly.assertThat(actualAttributes.getNamedItem("ProtocolBinding").getTextContent()).isEqualTo("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST");
+            softly.assertThat(actualAttributes.getNamedItem("IsPassive").getTextContent()).isEqualTo("false");
+        });
+    }
 
-		LocalDate dateToday = LocalDate.now();
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("uuuu-MM-dd");
-		String formattedString = dateToday.format(formatter);
-
-		String IDPEntityId = "idp.spid.gov.it";
-		int assertionConsumerServiceIndex = 0;
-		AuthRequest authRequest = spidIntegrationService.buildAuthenticationRequest(IDPEntityId, assertionConsumerServiceIndex);
-		String result = spidIntegrationUtil.decode(authRequest.getXmlAuthRequest());
-
-		Element resultElement = spidIntegrationUtil.xmlStringToElement(result);
-		SoftAssertions.assertSoftly(softly -> {
-			softly.assertThat(resultElement.getAttributes().getNamedItem("ID")).isNotNull();
-			softly.assertThat(resultElement.getAttributes().getNamedItem("IssueInstant").getTextContent()).contains(formattedString);
-			softly.assertThat(resultElement.getAttributes().getNamedItem("Version").getTextContent()).isEqualTo("2.0");
-			softly.assertThat(resultElement.getAttributes().getNamedItem("Destination").getTextContent()).contains(IDPEntityId);
-			softly.assertThat(resultElement.getAttributes().getNamedItem("AssertionConsumerServiceIndex").getTextContent()).isEqualTo(String.valueOf(assertionConsumerServiceIndex));
-			softly.assertThat(resultElement.getAttributes().getNamedItem("ProtocolBinding").getTextContent()).isEqualTo("urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST");
-			softly.assertThat(resultElement.getAttributes().getNamedItem("IsPassive")).isNull();
-		});
-	}
-
-	@Test
-	public void shouldRetrieveListOfIdpWhenCallListIDP() throws Exception{
-
-		List<IdpEntry> idpEntries = spidIntegrationService.getAllIdpEntry();
-
-		assertThat(idpEntries).hasSizeGreaterThan(0);
-
-	}
-
-
-
+    @Test
+    void shouldRetrieveListOfIdpWhenCallListIDP() throws Exception {
+        assertThat(spidIntegrationService.idpEntries()).hasSizeGreaterThan(0);
+    }
 }

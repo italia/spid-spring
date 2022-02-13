@@ -17,7 +17,10 @@ import java.security.UnrecoverableEntryException;
 import java.security.cert.CertificateEncodingException;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.util.zip.*;
+import java.util.zip.DataFormatException;
+import java.util.zip.Deflater;
+import java.util.zip.DeflaterOutputStream;
+import java.util.zip.Inflater;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -54,81 +57,79 @@ import it.italia.developers.spid.integration.exception.IntegrationServiceExcepti
 @Component
 public class SPIDIntegrationUtil {
 
-	private final Logger log = LoggerFactory.getLogger(SPIDIntegrationUtil.class.getName());
+    private final Logger log = LoggerFactory.getLogger(SPIDIntegrationUtil.class.getName());
 
-	@Value("${spid.spring.integration.keystore.certificate.alias}")
-	private String certificateAliasName;
+    @Value("${spid.spring.integration.keystore.certificate.alias}")
+    private String certificateAliasName;
 
-	@Value("${spid.spring.integration.keystore.path}")
-	private String keystorePath;
+    @Value("${spid.spring.integration.keystore.path}")
+    private String keystorePath;
 
-	@Value("${spid.spring.integration.keystore.password}")
-	private String keystorePassword;
+    @Value("${spid.spring.integration.keystore.password}")
+    private String keystorePassword;
 
-	public SPIDIntegrationUtil() {
-		try {
-			DefaultBootstrap.bootstrap();
-		}
-		catch (ConfigurationException e) {
-			log.error("SPIDIntegrationUtil :: " + e.getMessage(), e);
-		}
-	}
+    public SPIDIntegrationUtil() {
+        try {
+            DefaultBootstrap.bootstrap();
+        } catch (ConfigurationException e) {
+            log.error("SPIDIntegrationUtil :: " + e.getMessage(), e);
+        }
+    }
 
-	/**
-	 * Encode AuthNRequest.
-	 *
-	 * @param authnRequest
-	 * @return
-	 * @throws MarshallingException
-	 * @throws IOException
-	 * @throws ConfigurationException
-	 */
-	public String encodeAuthnRequest(AuthnRequest authnRequest, boolean compress) throws IntegrationServiceException {
+    /**
+     * Encode AuthNRequest.
+     *
+     * @param authnRequest
+     * @return
+     * @throws MarshallingException
+     * @throws IOException
+     * @throws ConfigurationException
+     */
+    public String encodeAuthnRequest(AuthnRequest authnRequest, boolean compress) throws IntegrationServiceException {
 
-		String requestMessage = printAuthnRequest(authnRequest);
-		if(!compress) {
-			return Base64.encodeBytes(requestMessage.getBytes(), Base64.DONT_BREAK_LINES);
-		}
-		Deflater deflater = new Deflater(Deflater.DEFLATED, true);
-		ByteArrayOutputStream byteArrayOutputStream = null;
-		DeflaterOutputStream deflaterOutputStream = null;
+        String requestMessage = printAuthnRequest(authnRequest);
+        if (!compress) {
+            return Base64.encodeBytes(requestMessage.getBytes(), Base64.DONT_BREAK_LINES);
+        }
+        Deflater deflater = new Deflater(Deflater.DEFLATED, true);
+        ByteArrayOutputStream byteArrayOutputStream = null;
+        DeflaterOutputStream deflaterOutputStream = null;
 
-		String encodedRequestMessage;
-		try {
-			byteArrayOutputStream = new ByteArrayOutputStream();
-			deflaterOutputStream = new DeflaterOutputStream(byteArrayOutputStream, deflater);
-			deflaterOutputStream.write(requestMessage.getBytes()); // compressing
-			deflaterOutputStream.close();
+        String encodedRequestMessage;
+        try {
+            byteArrayOutputStream = new ByteArrayOutputStream();
+            deflaterOutputStream = new DeflaterOutputStream(byteArrayOutputStream, deflater);
+            deflaterOutputStream.write(requestMessage.getBytes()); // compressing
+            deflaterOutputStream.close();
 
-			encodedRequestMessage = Base64.encodeBytes(byteArrayOutputStream.toByteArray(), Base64.DONT_BREAK_LINES);
+            encodedRequestMessage = Base64.encodeBytes(byteArrayOutputStream.toByteArray(), Base64.DONT_BREAK_LINES);
 
-			encodedRequestMessage = URLEncoder.encode(encodedRequestMessage, "UTF-8").trim(); // encoding string
-		}
-		catch (UnsupportedEncodingException e) {
-			log.error("encodeAndPrintAuthnRequest :: " + e.getMessage(), e);
-			throw new IntegrationServiceException(e);
-		}
-		catch (IOException e) {
-			log.error("encodeAndPrintAuthnRequest :: " + e.getMessage(), e);
-			throw new IntegrationServiceException(e);
-		}
-		return encodedRequestMessage;
-	}
+            encodedRequestMessage = URLEncoder.encode(encodedRequestMessage, "UTF-8").trim(); // encoding string
+        } catch (UnsupportedEncodingException e) {
+            log.error("encodeAndPrintAuthnRequest :: " + e.getMessage(), e);
+            throw new IntegrationServiceException(e);
+        } catch (IOException e) {
+            log.error("encodeAndPrintAuthnRequest :: " + e.getMessage(), e);
+            throw new IntegrationServiceException(e);
+        }
+        return encodedRequestMessage;
+    }
 
-	/**
-	 *  Decodifica un messaggio codificato
-	 *
-	 * @param encodedRequestMessage
-	 * @return Il messaggio decodificato
-	 * @throws IOException
-	 * @throws DataFormatException
-	 */
-	public String decode(String encodedRequestMessage) throws IOException, DataFormatException {
+    /**
+     * Decodifica un messaggio codificato
+     *
+     * @param encodedRequestMessage
+     * @return Il messaggio decodificato
+     * @throws IOException
+     * @throws DataFormatException
+     */
+    public String decode(String encodedRequestMessage) throws IOException, DataFormatException {
 
-		encodedRequestMessage = URLDecoder.decode(encodedRequestMessage, "UTF-8"); // encoding string
+        encodedRequestMessage = URLDecoder.decode(encodedRequestMessage, StandardCharsets.UTF_8.name()); // encoding string
 
-		return new String(decompress(Base64.decode(encodedRequestMessage)),StandardCharsets.UTF_8);
-	}
+        byte[] decode = Base64.decode(encodedRequestMessage);
+        return new String(decompress(decode), StandardCharsets.UTF_8);
+    }
 
 	/**
 	 * Decompressione tramite la classd @{@link Inflater}
@@ -142,149 +143,129 @@ public class SPIDIntegrationUtil {
 		Inflater inflater = new Inflater(true);
 		inflater.setInput(data);
 
-		ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length);
-		byte[] buffer = new byte[1024];
-		while (!inflater.finished()) {
-			int count = inflater.inflate(buffer);
-			outputStream.write(buffer, 0, count);
-		}
-		outputStream.close();
-		byte[] output = outputStream.toByteArray();
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream(data.length);
+        byte[] buffer = new byte[1024];
+        while (!inflater.finished()) {
+            int count = inflater.inflate(buffer);
+            outputStream.write(buffer, 0, count);
+        }
+        outputStream.close();
 
-
-		return output;
-	}
-
-	/**
-	 * Print AuthnRequest.
-	 *
-	 * @param authnRequest
-	 * @return
-	 * @throws MarshallingException
-	 */
-	public String printAuthnRequest(AuthnRequest authnRequest) throws IntegrationServiceException {
-
-		Marshaller marshaller = Configuration.getMarshallerFactory().getMarshaller(authnRequest); // object to DOM converter
-		Element authDOM;
-		try {
-			authDOM = marshaller.marshall(authnRequest);
-		}
-		catch (MarshallingException e) {
-			log.error("printAuthnRequest :: " + e.getMessage(), e);
-			throw new IntegrationServiceException(e);
-		}
-		
-		try {
-			Signer.signObject(authnRequest.getSignature());
-		} catch (SignatureException e) {
-			throw new IntegrationServiceException(e);
-		}
-		
-		// converting to a DOM
-		StringWriter requestWriter = new StringWriter();
-		XMLHelper.writeNode(authDOM, requestWriter);
-		String authnRequestString = requestWriter.toString(); // DOM to string
-
-    return authnRequestString;
-
+        return outputStream.toByteArray();
     }
 
-	public Element xmlStringToElement(String xmlData) throws SAXException, IOException, ParserConfigurationException {
-		InputStream xmlByteArrayInputStream = new ByteArrayInputStream(xmlData.getBytes());
-		Element node = DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xmlByteArrayInputStream).getDocumentElement();
+    /**
+     * Print AuthnRequest.
+     *
+     * @param authnRequest
+     * @return
+     * @throws MarshallingException
+     */
+    public String printAuthnRequest(AuthnRequest authnRequest) throws IntegrationServiceException {
 
-        return node;
+        Marshaller marshaller = Configuration.getMarshallerFactory().getMarshaller(authnRequest); // object to DOM converter
+        Element authDOM;
+        try {
+            authDOM = marshaller.marshall(authnRequest);
+        } catch (MarshallingException e) {
+            log.error("printAuthnRequest :: " + e.getMessage(), e);
+            throw new IntegrationServiceException(e);
+        }
+
+        try {
+            Signer.signObject(authnRequest.getSignature());
+        } catch (SignatureException e) {
+            throw new IntegrationServiceException(e);
+        }
+
+        // converting to a DOM
+        StringWriter requestWriter = new StringWriter();
+        XMLHelper.writeNode(authDOM, requestWriter);
+        String authnRequestString = requestWriter.toString(); // DOM to string
+
+        return authnRequestString;
     }
 
-	public Credential getCredential() {
+    public Element xmlStringToElement(String xmlData) throws SAXException, IOException, ParserConfigurationException {
+        InputStream xmlByteArrayInputStream = new ByteArrayInputStream(xmlData.getBytes());
 
-		KeyStore ks = getKeyStore();
+        return DocumentBuilderFactory.newInstance().newDocumentBuilder().parse(xmlByteArrayInputStream).getDocumentElement();
+    }
 
-		// Get Private Key Entry From Certificate
-		KeyStore.PrivateKeyEntry pkEntry = null;
-		try {
-			pkEntry = (KeyStore.PrivateKeyEntry) ks.getEntry(certificateAliasName, new KeyStore.PasswordProtection(keystorePassword.toCharArray()));
-		}
-		catch (NoSuchAlgorithmException e) {
-			log.error("Failed to Get Private Entry From the keystore", e);
-		}
-		catch (UnrecoverableEntryException e) {
-			log.error("Failed to Get Private Entry From the keystore", e);
-		}
-		catch (KeyStoreException e) {
-			log.error("Failed to Get Private Entry From the keystore", e);
-		}
-		PrivateKey pk = pkEntry.getPrivateKey();
+    public Credential getCredential() {
 
-		X509Certificate certificate = (X509Certificate) pkEntry.getCertificate();
-		BasicX509Credential credential = new BasicX509Credential();
-		credential.setEntityCertificate(certificate);
-		credential.setPrivateKey(pk);
+        KeyStore ks = getKeyStore();
 
-		return credential;
-	}
+        // Get Private Key Entry From Certificate
+        KeyStore.PrivateKeyEntry pkEntry = null;
+        try {
+            pkEntry = (KeyStore.PrivateKeyEntry) ks.getEntry(certificateAliasName, new KeyStore.PasswordProtection(keystorePassword.toCharArray()));
+        } catch (NoSuchAlgorithmException | KeyStoreException | UnrecoverableEntryException e) {
+            log.error("Failed to Get Private Entry From the keystore", e);
+        }
+        PrivateKey pk = pkEntry.getPrivateKey();
 
-	public KeyStore getKeyStore() {
+        X509Certificate certificate = (X509Certificate) pkEntry.getCertificate();
+        BasicX509Credential credential = new BasicX509Credential();
+        credential.setEntityCertificate(certificate);
+        credential.setPrivateKey(pk);
 
-		KeyStore ks = null;
-		char[] password = keystorePassword.toCharArray();
+        return credential;
+    }
 
-		// Get Default Instance of KeyStore
-		try {
-			ks = KeyStore.getInstance(KeyStore.getDefaultType());
-		}
-		catch (KeyStoreException e) {
-			log.error("Error while Intializing Keystore", e);
-		}
+    public KeyStore getKeyStore() {
 
-		// Load KeyStore from input stream
-		try (InputStream keystoreInputStream = getClass().getResourceAsStream(keystorePath)) {
-			ks.load(keystoreInputStream, password);
-		}
-		catch (NoSuchAlgorithmException e) {
-			log.error("Failed to Load the KeyStore:: ", e);
-		}
-		catch (CertificateException e) {
-			log.error("Failed to Load the KeyStore:: ", e);
-		}
-		catch (IOException e) {
-			log.error("Failed to Load the KeyStore:: ", e);
-		}
+        KeyStore ks = null;
+        char[] password = keystorePassword.toCharArray();
 
-		return ks;
-	}
+        // Get Default Instance of KeyStore
+        try {
+            ks = KeyStore.getInstance(KeyStore.getDefaultType());
+        } catch (KeyStoreException e) {
+            log.error("Error while Intializing Keystore", e);
+        }
 
-	/**
-	 * @return
-	 */
-	public Signature getSignature() {
+        // Load KeyStore from input stream
+        try (InputStream keystoreInputStream = getClass().getResourceAsStream(keystorePath)) {
+            ks.load(keystoreInputStream, password);
+        } catch (NoSuchAlgorithmException e) {
+            log.error("Failed to Load the KeyStore:: ", e);
+        } catch (CertificateException e) {
+            log.error("Failed to Load the KeyStore:: ", e);
+        } catch (IOException e) {
+            log.error("Failed to Load the KeyStore:: ", e);
+        }
 
-		XMLObjectBuilderFactory builderFactory = Configuration.getBuilderFactory();
+        return ks;
+    }
 
-		Signature signature = (Signature) builderFactory.getBuilder(Signature.DEFAULT_ELEMENT_NAME).buildObject(Signature.DEFAULT_ELEMENT_NAME);
-		signature.setSigningCredential(getCredential());
-		signature.setSignatureAlgorithm(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA256);
-		signature.setCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
-		KeyInfo keyInfo = (KeyInfo) builderFactory.getBuilder(KeyInfo.DEFAULT_ELEMENT_NAME).buildObject(KeyInfo.DEFAULT_ELEMENT_NAME);
+    /**
+     * @return
+     */
+    public Signature getSignature() {
 
-		KeyStore ks = getKeyStore();
-		try {
-			X509Certificate certificate = (X509Certificate) ks.getCertificate(certificateAliasName);
-			KeyInfoHelper.addCertificate(keyInfo, certificate);
-		}
-		catch (CertificateEncodingException e) {
-			log.error("buildAuthenticationRequest :: " + e.getMessage(), e);
-		}
-		catch (KeyStoreException e) {
-			log.error("buildAuthenticationRequest :: " + e.getMessage(), e);
-		}
-		catch (IllegalArgumentException e) {
-			log.error("buildAuthenticationRequest :: " + e.getMessage(), e);
-		}
+        XMLObjectBuilderFactory builderFactory = Configuration.getBuilderFactory();
 
-		signature.setKeyInfo(keyInfo);
+        Signature signature = (Signature) builderFactory.getBuilder(Signature.DEFAULT_ELEMENT_NAME).buildObject(Signature.DEFAULT_ELEMENT_NAME);
+        signature.setSigningCredential(getCredential());
+        signature.setSignatureAlgorithm(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA256);
+        signature.setCanonicalizationAlgorithm(SignatureConstants.ALGO_ID_C14N_EXCL_OMIT_COMMENTS);
+        KeyInfo keyInfo = (KeyInfo) builderFactory.getBuilder(KeyInfo.DEFAULT_ELEMENT_NAME).buildObject(KeyInfo.DEFAULT_ELEMENT_NAME);
 
-		return signature;
-	}
+        KeyStore ks = getKeyStore();
+        try {
+            X509Certificate certificate = (X509Certificate) ks.getCertificate(certificateAliasName);
+            KeyInfoHelper.addCertificate(keyInfo, certificate);
+        } catch (CertificateEncodingException e) {
+            log.error("buildAuthenticationRequest :: " + e.getMessage(), e);
+        } catch (KeyStoreException e) {
+            log.error("buildAuthenticationRequest :: " + e.getMessage(), e);
+        } catch (IllegalArgumentException e) {
+            log.error("buildAuthenticationRequest :: " + e.getMessage(), e);
+        }
 
+        signature.setKeyInfo(keyInfo);
+
+        return signature;
+    }
 }
