@@ -1,6 +1,5 @@
 package it.italia.developers.spid.integration.util;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
@@ -58,8 +57,6 @@ public class AuthenticationInfoExtractor {
 	SPIDIntegrationUtil spidIntegrationUtil;
 
 	public AuthenticationInfoExtractor(String entityId, SPIDIntegrationUtil spidIntegrationUtil, Integer assertionConsumerServiceIndex) throws IntegrationServiceException {
-
-		super();
 
 		try {
 			this.spidIntegrationUtil = spidIntegrationUtil;
@@ -121,10 +118,7 @@ public class AuthenticationInfoExtractor {
 			authRequest.setDestinationUrl(destination);
 			authRequest.setXmlAuthRequest(encodedAuthnRequest);
 		}
-		catch (ResourceException e) {
-			throw new IntegrationServiceException(e);
-		}
-		catch (MetadataProviderException e) {
+		catch (ResourceException | MetadataProviderException e) {
 			throw new IntegrationServiceException(e);
 		}
 	}
@@ -137,8 +131,7 @@ public class AuthenticationInfoExtractor {
 	 */
 	private IDPSSODescriptor getIDPSSODescriptor(String entityId, ClasspathResource resource) throws MetadataProviderException {
 		EntityDescriptor entityDescriptor = getEntityDescriptor(entityId, resource);
-		IDPSSODescriptor idpssoDescriptor = entityDescriptor.getIDPSSODescriptor(SAML2_PROTOCOL);
-		return idpssoDescriptor;
+		return entityDescriptor.getIDPSSODescriptor(SAML2_PROTOCOL);
 	}
 
 	/**
@@ -153,8 +146,7 @@ public class AuthenticationInfoExtractor {
 		parser.setNamespaceAware(true);
 		abstractReloadingMetadataProvider.setParserPool(parser);
 		abstractReloadingMetadataProvider.initialize();
-		EntityDescriptor entityDescriptor = abstractReloadingMetadataProvider.getEntityDescriptor(entityId);
-		return entityDescriptor;
+		return abstractReloadingMetadataProvider.getEntityDescriptor(entityId);
 	}
 
 	private String retrieveXMLResourcePath(String entityId) throws IntegrationServiceException {
@@ -167,16 +159,11 @@ public class AuthenticationInfoExtractor {
 			for (String key : keys) {
 				String entityIdFromProperties = properties.getProperty(SPID_SPRING_INTEGRATION_IDP_PREFIX + key + ".entityId");
 				if (entityId.equals(entityIdFromProperties)) {
-					String xmlMetadataFileName = properties.getProperty(SPID_SPRING_INTEGRATION_IDP_PREFIX + key + ".file");
-					return xmlMetadataFileName;
+					return properties.getProperty(SPID_SPRING_INTEGRATION_IDP_PREFIX + key + ".file");
 				}
 
 			}
-		}
-		catch (FileNotFoundException e) {
-			throw new IntegrationServiceException(e);
-		}
-		catch (IOException e) {
+		} catch (IOException e) {
 			throw new IntegrationServiceException(e);
 		}
 
